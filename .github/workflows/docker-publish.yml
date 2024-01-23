@@ -1,0 +1,151 @@
+name: Pipeline job & Docker publish
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '**.cs'
+      - '**.csproj'
+
+env:
+  DOTNET_VERSION: '6.0.401'
+
+jobs:
+  lock-pr-merge:
+    name: Lock PR Merge
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Lock PR Merge
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          TOKEN=${{ secrets.TOKEN_GITHUB }}
+          GITHUB_REPO=${{ github.repository }}
+
+          # Bloquea la opción de squash merge en la pull request
+          curl -X PUT -s -H "Authorization: token $TOKEN" -d '{
+            "auto_merge": true,
+            "mergeable": true
+          }' "https://api.github.com/repos/$GITHUB_REPO/pulls/$PR_NUMBER"
+          
+  build-and-test:
+    name: build-and-test
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        id: test
+        run: dotnet test --no-restore --verbosity normal
+          
+  check-test:
+    name: Check & Close PR on Failure
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: failure()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Check & Close PR on Failure
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          TOKEN=${{ secrets.TOKEN_GITHUB }}
+          GITHUB_REPO=${{ github.repository }}
+          
+          # Close the PR if tests failed
+          curl -X PATCH -s -H "Authorization: token $TOKEN" -d '{
+            "state": "closed"
+          }' "https://api.github.com/repos/$GITHUB_REPO/pulls/$PR_NUMBER"
+
+  create-pr-and-approve:
+    name: Create PR and Approve
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: Check PR event
+        id: pr
+        run: echo "PR number is ${{ github.event.pull_request.number }}"
+        
+      - name: Approve PR
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          TOKEN=${{ secrets.TOKEN_GITHUB }}
+          GITHUB_REPO=${{ github.repository }}
+          GITHUB_API_URL="https://api.github.com/repos/$GITHUB_REPO/pulls/$PR_NUMBER/reviews"
+
+          # Create a review and approve the PR
+          REVIEW_ID=$(curl -X POST -s -H "Authorization: token $TOKEN" -d '{
+            "event": "APPROVE"
+          }' "$GITHUB_API_URL/reviews" | jq -r '.id')
+
+          echo "PR #$PR_NUMBER has been approved"
+
+      - name: Squash Merge to Master
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          TOKEN=${{ secrets.TOKEN_GITHUB }}
+          GITHUB_REPO=${{ github.repository }}
+      
+          # Perform a squash merge to master with PR title
+          MERGE_URL="https://api.github.com/repos/$GITHUB_REPO/pulls/$PR_NUMBER"
+        
+          PR_TITLE=$(curl -s $GITHUB_API_URL | jq -r '.title')
+          COMMIT_TITLE="Squash merge: '$PR_TITLE'"
+        
+          MERGE_RESPONSE=$(curl -X PUT -s -H "Authorization: token $TOKEN" -d "{
+            \"expected_head_sha\": null,
+            \"merge_method\": \"squash\",
+            \"commit_title\": \"$COMMIT_TITLE\"
+            \"merge_state\": \"merged\"
+          }" "$MERGE_URL")
+
+          # Auto-confirm & Squash Merge the PR
+          curl -X PATCH -s -H "Authorization: token $TOKEN" -d '{
+            "auto_merge": true,
+            "mergeable": true
+          }' "https://api.github.com/repos/$GITHUB_REPO/pulls/$PR_NUMBER"
+     
+  build-and-publish:
+    runs-on: ubuntu-latest
+    needs: create-pr-and-approve
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO_NAME }}:latest ./
+
+      - name: Push Docker image
+        run: docker push ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO_NAME }}:latest

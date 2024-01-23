@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Services\TMDB\GenreBL.cs~RF16611c5.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataContext\DataContext.csproj" />
+    <ProjectReference Include="..\DomainService.Contracts\DomainService.Contracts.csproj" />
+    <ProjectReference Include="..\Dto.Mappings\Dto.Mappings.csproj" />
+    <ProjectReference Include="..\DtoService\DtoService.csproj" />
+    <ProjectReference Include="..\Entities\Entities.csproj" />
+    <ProjectReference Include="..\Repositories\Repositories.csproj" />
+    <ProjectReference Include="..\Repository.Contracts\Repository.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
