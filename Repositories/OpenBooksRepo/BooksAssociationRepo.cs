@@ -23,7 +23,7 @@ namespace Repositories.OpenBooksRepo
             try
             {
                 var book = AsQueryable()
-                    .Where(b => b.Id == bookID)
+                    .Where(b => b.IdOpenlibra == bookID)
                     .Include(b => b.Categories)
                     .Include(b => b.SubCategories)
 					.Include(b => b.AuthorsBooks)
