@@ -1,6 +1,5 @@
 ﻿using DataContext.DbContexts.TmdbDbContext;
 using Entities.TMDB.Movies;
-using Microsoft.EntityFrameworkCore;
 using Repositories.BaseDA;
 using Repository.Contracts.TMDB;
 
