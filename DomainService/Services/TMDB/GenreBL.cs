@@ -4,7 +4,6 @@ using DomainService.Contracts.TMDB;
 using DomainService.Services.BaseBL;
 using Entities.Base;
 using Entities.TMDB.Movies;
-using Repositories.TMDBRepo;
 using Repository.Contracts.TMDB;
 
 namespace DomainService.Services.TMDB
@@ -24,13 +23,15 @@ namespace DomainService.Services.TMDB
 			moviesGenresBL = iMoviesGenresBL;
 		}
 
-		public Genre GetByIdTMDB(long id) => genreDA.GetByIdTMDB(id);
+        public Genre GetByIdTMDB(long id) => genreDA.GetByIdTMDB(id);
 
-		public Genre GetByName(string name) => genreDA.GetByName(name);
-		public bool AlreadyExistsByName(string name) => genreDA.AlreadyExistsByName(name);
-		public bool AlreadyExistsByIdTMDB(long id) => genreDA.AlreadyExistsByIdTMDB(id);
+        public Genre GetByName(string name) => genreDA.GetByName(name);
 
-		public Genre Update(Genre genreToAdd)
+        public bool AlreadyExistsByName(string name) => genreDA.AlreadyExistsByName(name);
+
+        public bool AlreadyExistsByIdTMDB(long id) => genreDA.AlreadyExistsByIdTMDB(id);
+
+        public Genre Update(Genre genreToAdd)
 		{
 			if (!genreDA.AlreadyExistsById(genreToAdd.Id))
 				throw new Exception("No existe el género en base de datos");
@@ -79,9 +80,9 @@ namespace DomainService.Services.TMDB
 			{
 				for (int i = 0; i <= genres.Count() - 1; i++)
 				{
-					if (AlreadyExistsByName(genres[i].Name))
+					if (genreDA.AlreadyExistsByName(genres[i].Name))
 					{
-						Genre genreOnDb = GetByName(genres[i].Name);
+						Genre genreOnDb = genreDA.GetByName(genres[i].Name);
 						genres[i].Id = genreOnDb.Id;
 					}
 					else
