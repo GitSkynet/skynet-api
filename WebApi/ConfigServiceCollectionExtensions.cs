@@ -4,24 +4,31 @@ using CleanArchitecture.Application.Services.GoogleBooks;
 using CleanArchitecture.Application.Services.OpenBooks;
 using DataAccess.RESTServices.GoogleBooks.Interfaces;
 using DataAccess.RESTServices.GoogleBooks.Services;
+using DataAccess.RESTServices.PokemonAPI.Interfaces;
+using DataAccess.RESTServices.PokemonAPI.Services;
 using DataAccess.RESTServices.TheMovieDB.Interfaces;
 using DataAccess.RESTServices.TheMovieDB.Services;
 using DataContext.DbContexts.OpenBooksDbContext;
+using DataContext.DbContexts.PokemonDbContext;
 using DataContext.DbContexts.TmdbDbContext;
 using DomainService.Contracts;
 using DomainService.Contracts.OpenBooks;
+using DomainService.Contracts.PokeAPI;
 using DomainService.Contracts.TMDB;
 using DomainService.Services.GoogleBooks;
 using DomainService.Services.OpenBooks;
+using DomainService.Services.PokeAPI;
 using DomainService.Services.TMDB;
 using Dto.Mappings.GoogleBooks;
 using Dto.Mappings.OpenBooks;
 using Microsoft.EntityFrameworkCore;
 using Repositories.GoogleBooksRepo;
 using Repositories.OpenBooksRepo;
+using Repositories.PokemonRepo;
 using Repositories.TMDBRepo;
 using Repository.Contracts.GoogleBooks;
 using Repository.Contracts.OpenBooks;
+using Repository.Contracts.PokeAPI;
 using Repository.Contracts.TMDB;
 using System.Reflection;
 
@@ -44,7 +51,8 @@ namespace WebApi
             services.AddTransient <IAuthorsApplicationService, AuthorsApplicationService> ();
             services.AddTransient <ICategoriesApplicationService, CategoriesApplicationService>();
             services.AddTransient <ISubCategoriesApplicationService, SubCategoriesApplicationService>();
-			// TMDB Configuration
+			
+            // TMDB Configuration
 			services.AddScoped<ITVShowBL, TVShowBL>();
 			services.AddScoped<IMovieBL, MovieBL>();
 			services.AddScoped<IGenreBL, GenreBL>();
@@ -81,9 +89,18 @@ namespace WebApi
 			services.AddScoped<MoviesProductionCompaniesDA>();
 			services.AddScoped<MovieSpokenLanguageDA>();
 			services.AddDbContext<TmdbDbContext>(options => options.UseSqlServer(config.GetConnectionString("TMDBConnection")), ServiceLifetime.Scoped);
-			// End TMDB Configuration
+            // End TMDB Configuration
 
-			services.AddDbContext<OpenBooksDbContext>(options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+            // Pokémon configuration
+            services.AddTransient<IQueryServicePokeAPI, PokeAPIQueryService>();
+            services.AddScoped<IPokemonBL, PokemonBL>();
+            services.AddScoped<IPokemonDA, PokemonDA>();
+            services.AddScoped<PokemonBL>();
+            services.AddScoped<PokemonDA>();
+            services.AddDbContext<PokemonDbContext>(options => options.UseSqlServer(config.GetConnectionString("PokemonDbConnection")), ServiceLifetime.Scoped);
+            // End Pokémon Configuration
+
+            services.AddDbContext<OpenBooksDbContext>(options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 			services.AddTransient<BooksService>();
             services.AddTransient<AuthorService>();
             services.AddTransient<CategoriesService>();

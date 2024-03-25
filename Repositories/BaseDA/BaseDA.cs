@@ -1,5 +1,6 @@
 ﻿using Entities.Base;
 using Microsoft.EntityFrameworkCore;
+using Repository.Contracts.PokeAPI;
 
 namespace Repositories.BaseDA
 {
@@ -9,9 +10,9 @@ namespace Repositories.BaseDA
 
 		public DbContext DbContext => dbContext;
 
-		public BaseDA(DbContext dbContext) => this.dbContext = dbContext;
+        public BaseDA(DbContext dbContext) => this.dbContext = dbContext;
 
-		protected IQueryable<TEntity> AsQueryableIf<TEntity>(bool condition) where TEntity : class
+        protected IQueryable<TEntity> AsQueryableIf<TEntity>(bool condition) where TEntity : class
 		{
 			return condition
 			? AsQueryable<TEntity>()
