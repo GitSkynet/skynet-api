@@ -2,7 +2,7 @@
 using DataAccess.RESTServices.TheMovieDB.Interfaces;
 using DomainService.Contracts.PokeAPI;
 using DomainService.Services.BaseBL;
-using Entities.PokeAPI;
+using Entities.PokeAPI.Pokemon;
 using Repository.Contracts.PokeAPI;
 
 namespace DomainService.Services.PokeAPI

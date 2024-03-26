@@ -1,4 +1,4 @@
-﻿using Entities.PokeAPI;
+﻿using Entities.PokeAPI.Pokemon;
 
 namespace Repository.Contracts.PokeAPI
 {

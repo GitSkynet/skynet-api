@@ -1,4 +1,4 @@
-﻿using Entities.PokeAPI;
+﻿using Entities.PokeAPI.Pokemon;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataContext.DbContexts.PokemonDbContext

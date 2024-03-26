@@ -2,7 +2,7 @@
 using DataAccess.RESTServices.PokemonAPI.Interfaces;
 using DataAccess.RESTServices.TheMovieDB.Interfaces;
 using DataAccess.RESTServices.TheMovieDB.Services;
-using Entities.PokeAPI;
+using Entities.PokeAPI.Pokemon;
 using Entities.TMDB.Movies;
 using log4net;
 using Microsoft.Extensions.Configuration;

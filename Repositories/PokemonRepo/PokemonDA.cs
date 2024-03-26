@@ -1,6 +1,6 @@
 ﻿using DataContext.DbContexts.PokemonDbContext;
 using DataContext.DbContexts.TmdbDbContext;
-using Entities.PokeAPI;
+using Entities.PokeAPI.Pokemon;
 using Microsoft.EntityFrameworkCore;
 using Repositories.BaseDA;
 using Repository.Contracts.PokeAPI;

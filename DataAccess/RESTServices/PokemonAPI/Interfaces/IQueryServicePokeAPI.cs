@@ -1,4 +1,4 @@
-﻿using Entities.PokeAPI;
+﻿using Entities.PokeAPI.Pokemon;
 using System;
 using System.Collections.Generic;
 using System.Linq;

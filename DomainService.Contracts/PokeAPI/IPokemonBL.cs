@@ -1,4 +1,4 @@
-﻿using Entities.PokeAPI;
+﻿using Entities.PokeAPI.Pokemon;
 
 namespace DomainService.Contracts.PokeAPI
 {
